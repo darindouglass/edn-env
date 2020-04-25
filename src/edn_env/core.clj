@@ -34,9 +34,7 @@
   ([var {:keys [kebab-char nest-char path-fn]}]
    (let [->pattern #(get {"." #"\."} (str %) (re-pattern (str %)))
          parts (str/split (str/lower-case var) (->pattern nest-char))]
-     (->> parts
-          (map (impartial str/replace (->pattern kebab-char) "-"))
-          (map path-fn)))))
+     (map (comp path-fn (impartial str/replace (->pattern kebab-char) "-")) parts))))
 
 (defn parse-value
   "Parses an env value using `edn/read-string`.
@@ -52,15 +50,15 @@
       value)))
 
 ;; Wrap for testing
-(defn- env []
+(defn- system-env []
   (System/getenv))
 
 (defn env-vars
-  "Parses env vars into a map of paths -> suitable config values."
+  "Parses env vars into a map of paths -> edn-parsed values."
   ([]
    (env-vars default-options))
   ([options]
-   (->> (env)
+   (->> (system-env)
         (map (juxt (comp (impartial var->path options) key) (comp parse-value val)))
         (into {}))))
 

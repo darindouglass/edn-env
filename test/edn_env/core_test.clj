@@ -47,13 +47,13 @@
     (is (= "{:a" (sut/parse-value "{:a")))))
 
 (deftest test-env-vars
-  (with-redefs [sut/env (constantly {"DATABASE__HOST" "a host" "THREAD_COUNT" "3"})]
+  (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host" "THREAD_COUNT" "3"})]
     (is (= {[:database :host] "a host"
             [:thread-count] 3}
            (sut/env-vars)))))
 
 (deftest test-overlay
-  (with-redefs [sut/env (constantly {"DATABASE__HOST" "a host"})]
+  (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host"})]
     (is (= {:database {:host "a host"
                        :user "user"}
             :meaning-of-life nil}
@@ -62,8 +62,8 @@
                          :meaning-of-life nil})))))
 
 (deftest test-load-config
-  (with-redefs [sut/env (constantly {"DATABASE__HOST" "a host"
-                                     "OUR.CLUSTERS_0_URL" "http://somewhere"})]
+  (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host"
+                                            "OUR.CLUSTERS_0_URL" "http://somewhere"})]
     (testing "using defaults"
       (is (= {:database {:host "a host" :port 1234}} (sut/load-config))))
     (testing "overriding defaults"
