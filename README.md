@@ -50,14 +50,28 @@ The main fn provided is the `overlay` function which takes in a map and applies 
 Loads the given resource (defaulting to `config.edn`) and calls `overlay` on the loaded config:
 
 ```clojure
-;; test.edn
+;; config.edn
 {:test-value nil}
 
 ;; Given this env:
 ;;   TEST_VALUE=420
-(edn/load-config "test.edn")
+(edn/load-config)
 {:test-value 420}
 ```
+`load-config` can also take the same options map `overlay` does:
+```clojure
+;; clusters.edn
+{:clusters [{:host-name nil}]}
 
+;; It's me again!:
+;;   CLUSTERSv0vHOST.NAME=localhost
+(env/load-config "cluster.edn" {:kebab-char "."
+                                :nest-char "v"
+                                :path-fn #(try
+                                            (Integer/parseInt %)
+                                            (catch Exception _
+                                              (keyword %)))}
+{:clusters [{:host-name "localhost"}]}
+```
 # Contributing
 Issues and PRs are welcome.
