@@ -30,15 +30,15 @@ The main fn provided is the `overlay` function which takes in a map and applies 
  {:host "localhost", :username "user", :password "insecure"}}
 ```
 `overlay` can also take an options map which change its behavior:
-- `kebab-char`: a string/char that indicates a `-` between two words in a single key
-- `nest-char`: a string/char that indicates a new level of nesting as been added
-- `path-fn`: is called for every part 
+- `kebab-re`: a string/char that indicates a `-` between two words in a single key
+- `nest-re`: a string/char that indicates a new level of nesting as been added
+- `path-fn`: is called for every part
 ```clojure
 ;; Given this (arbitrary and super confusing yet explanatory) env:
 ;;   CLUSTERSv0vHOST.NAME=localhost
 (env/overlay {:clusters [{:host-name nil}]
-             {:kebab-char "."
-              :nest-char "v"
+             {:kebab-re #"\."
+              :nest-re #"v"
               :path-fn #(try
                           (Integer/parseInt %)
                           (catch Exception _
@@ -65,8 +65,8 @@ Loads the given resource (defaulting to `config.edn`) and calls `overlay` on the
 
 ;; It's me again!:
 ;;   CLUSTERSv0vHOST.NAME=localhost
-(env/load-config "cluster.edn" {:kebab-char "."
-                                :nest-char "v"
+(env/load-config "cluster.edn" {:kebab-re #"\."
+                                :nest-re #"v"
                                 :path-fn #(try
                                             (Integer/parseInt %)
                                             (catch Exception _

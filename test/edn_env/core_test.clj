@@ -22,10 +22,10 @@
     "ONE_TWO" [:one-two] sut/default-options
     "ONE__TWO" [:one :two] sut/default-options
     "ONE__TWO_THREE_FOUR" [:one :two-three-four] sut/default-options
-    "ONE_TWO" [:one :two] (assoc sut/default-options :nest-char "_")
+    "ONE_TWO" [:one :two] (assoc sut/default-options :nest-re #"_")
     "ONE_TWO.THREE" [:one :two-three] (assoc sut/default-options
-                                             :nest-char \_
-                                             :kebab-char \.)
+                                             :nest-re #"_"
+                                             :kebab-re #"\.")
     "ONE__2__THREE" [:one 2 :three] (assoc sut/default-options
                                            :path-fn #(try
                                                        (Long/parseLong %)
@@ -69,8 +69,8 @@
     (testing "overriding defaults"
       (is (= {:our-clusters [{:url "http://somewhere"}]}
              (sut/load-config "other-config.edn"
-                              {:kebab-char "."
-                               :nest-char "_"
+                              {:kebab-re #"\."
+                               :nest-re #"_"
                                :path-fn #(try
                                            (Long/parseLong %)
                                            (catch Exception _
