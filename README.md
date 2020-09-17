@@ -30,9 +30,9 @@ The main fn provided is the `overlay` function which takes in a map and applies 
  {:host "localhost", :username "user", :password "insecure"}}
 ```
 `overlay` can also take an options map which change its behavior:
-- `kebab-re`: a string/char that indicates a `-` between two words in a single key
-- `nest-re`: a string/char that indicates a new level of nesting as been added
-- `path-fn`: is called for every part
+- `kebab-re`: a regex whose matches will be replaced with `-`
+- `nest-re`: a regex whose matches will be used to split the environment variable's name into a sequence suitable for `get-in`, et al.
+- `path-fn`: is called for every element in the sequence created by `nest-re`.
 ```clojure
 ;; Given this (arbitrary and super confusing yet explanatory) env:
 ;;   CLUSTERSv0vHOST.NAME=localhost
