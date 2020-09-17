@@ -5,8 +5,8 @@
 
 (def default-config-file "config.edn")
 (def default-options {:path-fn keyword
-                      :kebab-char "_"
-                      :nest-char "__"})
+                      :kebab-re #"_"
+                      :nest-re #"__"})
 
 (defn- impartial
   "The opposite of `partial`.
@@ -31,10 +31,10 @@
   "Converts a env var name into a path suitable for `get-in`."
   ([var]
    (var->path var default-options))
-  ([var {:keys [kebab-char nest-char path-fn]}]
-   (let [->pattern #(get {"." #"\."} (str %) (re-pattern (str %)))
-         parts (str/split (str/lower-case var) (->pattern nest-char))]
-     (map (comp path-fn (impartial str/replace (->pattern kebab-char) "-")) parts))))
+  ([var options]
+   (let [{:keys [kebab-re nest-re path-fn]} (merge default-options options)
+         parts (str/split (str/lower-case var) nest-re)]
+     (map (comp path-fn (impartial str/replace kebab-re "-")) parts))))
 
 (defn parse-value
   "Parses an env value using `edn/read-string`.
