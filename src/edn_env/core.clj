@@ -81,11 +81,8 @@
   ([options]
    (load-config default-config-file options))
   ([file options]
-   (try
-     (-> file
-         (io/resource)
+   (when-let [resource (io/resource file)]
+     (-> resource
          (slurp)
          (edn/read-string)
-         (overlay options))
-     (catch Exception exc
-       (throw (ex-info "Failed to load config" {:exception exc}))))))
+         (overlay options)))))

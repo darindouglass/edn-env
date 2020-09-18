@@ -75,5 +75,5 @@
                                            (Long/parseLong %)
                                            (catch Exception _
                                              (keyword %)))}))))
-    (testing "exceptions"
-      (is (thrown? clojure.lang.ExceptionInfo (sut/load-config "notafile.edn" {}))))))
+    (testing "missing files are ignored"
+      (is (nil? (sut/load-config "notafile.edn" {}))))))
