@@ -1,6 +1,6 @@
-(ns edn-env.core-test
+(ns com.github.darindouglass.edn-env-test
   (:require [clojure.test :refer [are deftest is testing]]
-            [edn-env.core :as sut]))
+            [com.github.darindouglass.edn-env :as sut]))
 
 (deftest test-contains-in?
   (let [config {:database {:host "host" :port 12345}}]
@@ -14,7 +14,14 @@
     (is (false? (#'sut/contains-in? config [:missing])))
     (is (false? (#'sut/contains-in? config [:database :port :some-other-key])))
     (is (false? (#'sut/contains-in? nil [:database :port :some-other-key])))
-    (is (false? (#'sut/contains-in?{} [:database :port :some-other-key])))))
+    (is (false? (#'sut/contains-in? {} [:database :port :some-other-key])))))
+
+(deftest test-skip?
+  (is (false? (sut/skip? {} [:a])))
+  (is (false? (sut/skip? {:a "hi"} [:a])))
+  (is (false? (sut/skip? {:a {:b 2}} [:a])))
+  (is (true?  (sut/skip? {:a ^::sut/skip {:b 2}} [:a])))
+  (is (true?  (sut/skip? {:a {:b ^::sut/skip {}}} [:a :b]))))
 
 (deftest test-var->path
   (are [input expected options] (= expected (sut/var->path input options))
@@ -53,13 +60,17 @@
            (sut/env-vars)))))
 
 (deftest test-overlay
-  (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host"})]
+  (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host"
+                                            "DATABASE__CLUSTERS" "[\"cluster-one\" \"cluster-two\"]"})]
     (is (= {:database {:host "a host"
                        :user "user"}
             :meaning-of-life nil}
            (sut/overlay {:database {:host nil
                                     :user "user"}
-                         :meaning-of-life nil})))))
+                         :meaning-of-life nil})))
+    (testing "overlay + skip metadata"
+      (is (= {:database {:clusters ["still" "here"]}}
+             (sut/overlay {:database {:clusters ^::sut/skip ["still" "here"]}}))))))
 
 (deftest test-load-config
   (with-redefs [sut/system-env (constantly {"DATABASE__HOST" "a host"

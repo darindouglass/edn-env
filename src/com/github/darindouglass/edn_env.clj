@@ -1,4 +1,4 @@
-(ns edn-env.core
+(ns com.github.darindouglass.edn-env
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]))
@@ -62,6 +62,15 @@
         (map (juxt (comp (impartial var->path options) key) (comp parse-value val)))
         (into {}))))
 
+(defn skip?
+  "Returns true iff `::skip` metadata is `true`."
+  [all path]
+  (->> path
+       (get-in all)
+       (meta)
+       (::skip)
+       (true?)))
+
 (defn overlay
   "Overlays env vars onto the provided config."
   ([config]
@@ -69,7 +78,7 @@
   ([config options]
    (reduce-kv (fn [all path value]
                 (cond-> all
-                  (contains-in? all path)
+                  (and (contains-in? all path) (not (skip? all path)))
                   (assoc-in path value)))
               config
               (env-vars options))))
