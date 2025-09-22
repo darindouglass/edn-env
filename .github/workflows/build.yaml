@@ -21,4 +21,4 @@ jobs:
       with:
         cli: 1.12.2.1565
     - name: test
-      run: clj -X:test
+      run: clojure -X:test
